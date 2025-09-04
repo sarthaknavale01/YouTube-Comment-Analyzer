@@ -4,3 +4,5 @@ vaderSentiment==3.3.2
 emoji==2.2.0
 matplotlib
 numpy
+python-dotenv
+gunicorn
