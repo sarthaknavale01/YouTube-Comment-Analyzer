@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analysis Results - YouTube Comment Analyzer</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --youtube-red: #FF0000;
+            --youtube-dark: #0F0F0F;
+            --youtube-light-dark: #272727;
+            --youtube-gray: #F1F1F1;
+            --positive: #4CAF50;
+            --negative: #F44336;
+            --neutral: #9E9E9E;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            font-family: 'Roboto', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+        }
+        
+        .navbar {
+            background-color: var(--youtube-dark);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+        
+        .main-container {
+            max-width: 1200px;
+            padding-top: 2rem;
+            padding-bottom: 3rem;
+        }
+        
+        .card {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            margin-bottom: 2rem;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.12);
+        }
+        
+        .card-header {
+            background: linear-gradient(135deg, var(--youtube-red) 0%, #CC0000 100%);
+            color: white;
+            font-weight: 600;
+            padding: 1.2rem 1.5rem;
+            border-bottom: none;
+        }
+        
+        .card-body {
+            padding: 2rem;
+        }
+        
+        .sentiment-badge {
+            font-size: 1rem;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+        
+        .positive {
+            background: linear-gradient(135deg, var(--positive) 0%, #3d8b40 100%);
+            color: white;
+        }
+        
+        .negative {
+            background: linear-gradient(135deg, var(--negative) 0%, #d32f2f 100%);
+            color: white;
+        }
+        
+        .neutral {
+            background: linear-gradient(135deg, var(--neutral) 0%, #757575 100%);
+            color: white;
+        }
+        
+        .comment-box {
+            background-color: white;
+            border-radius: 10px;
+            padding: 1.2rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            border-left: 4px solid #ddd;
+            transition: all 0.2s ease;
+        }
+        
+        .comment-box:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transform: translateX(5px);
+        }
+        
+        .comment-positive {
+            border-left-color: var(--positive);
+        }
+        
+        .comment-negative {
+            border-left-color: var(--negative);
+        }
+        
+        .btn-back {
+            background: linear-gradient(135deg, var(--youtube-red) 0%, #CC0000 100%);
+            border: none;
+            border-radius: 8px;
+            padding: 0.6rem 1.5rem;
+            font-weight: 600;
+            transition: all 0.3s;
+            box-shadow: 0 4px 8px rgba(255, 0, 0, 0.2);
+            color: white;
+        }
+        
+        .btn-back:hover {
+            background: linear-gradient(135deg, #CC0000 0%, #AA0000 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(255, 0, 0, 0.25);
+            color: white;
+        }
+        
+        .chart-container {
+            width: 100%;
+            height: 280px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+        }
+        
+        .chart-img {
+            max-width: 100%;
+            max-height: 260px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+            object-fit: contain;
+        }
+        
+        .stat-card {
+            text-align: center;
+            padding: 1.5rem;
+            border-radius: 12px;
+            background: white;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+            height: 100%;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+        }
+        
+        .stat-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        
+        .progress {
+            height: 10px;
+            border-radius: 5px;
+            margin-bottom: 0.5rem;
+        }
+        
+        .progress-bar-positive {
+            background: linear-gradient(90deg, var(--positive) 0%, #66bb6a 100%);
+        }
+        
+        .progress-bar-negative {
+            background: linear-gradient(90deg, var(--negative) 0%, #ef5350 100%);
+        }
+        
+        .progress-bar-neutral {
+            background: linear-gradient(90deg, var(--neutral) 0%, #bdbdbd 100%);
+        }
+        
+        .video-info-card {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            color: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .section-title {
+            position: relative;
+            padding-bottom: 0.5rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 2px solid #eee;
+        }
+        
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 60px;
+            height: 2px;
+            background: var(--youtube-red);
+        }
+        
+        .sentiment-score {
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+        
+        .footer {
+            background-color: var(--youtube-dark);
+            color: white;
+            padding: 2rem 0;
+            margin-top: 3rem;
+        }
+        
+        @media (max-width: 768px) {
+            .chart-container {
+                height: 220px;
+            }
+            
+            .stat-value {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center" href="/">
+                <i class="bi bi-youtube me-2" style="color: var(--youtube-red); font-size: 1.8rem;"></i>
+                <span class="fw-bold">Comment Analyzer</span>
+            </a>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/"><i class="bi bi-house-door me-1"></i> Home</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container main-container">
+        <!-- Page Header -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="display-5 fw-bold">Analysis Results</h1>
+            <a href="/" class="btn btn-back">
+                <i class="bi bi-arrow-left-circle me-2"></i>New Analysis
+            </a>
+        </div>
+        
+        <!-- Video Information Card -->
+        <div class="video-info-card mb-4">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h2 class="h3 mb-2">{{ results.video_title }}</h2>
+                    <div class="d-flex flex-wrap align-items-center">
+                        <div class="me-3 mb-2">
+                            <i class="bi bi-chat-square-text me-1"></i>
+                            <strong>{{ results.comments_analyzed }}</strong> Comments Analyzed
+                        </div>
+                        <div class="me-3 mb-2">
+                            <i class="bi bi-graph-up me-1"></i>
+                            Overall Sentiment: 
+                            <span class="badge sentiment-badge {{ results.sentiment_result.lower() }}">
+                                {{ results.sentiment_result }}
+                            </span>
+                        </div>
+                        <div class="mb-2">
+                            <i class="bi bi-speedometer2 me-1"></i>
+                            Score: <span class="sentiment-score">{{ "%.2f"|format(results.avg_polarity) }}</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 text-md-end">
+                    <i class="bi bi-youtube" style="font-size: 3rem; opacity: 0.8;"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats Overview -->
+        <div class="row mb-4">
+            <div class="col-md-4 mb-3">
+                <div class="stat-card">
+                    <i class="bi bi-emoji-smile stat-icon text-success"></i>
+                    <div class="stat-value text-success">{{ results.positive_count }}</div>
+                    <div>Positive Comments</div>
+                    <div class="progress mt-3">
+                        <div class="progress-bar progress-bar-positive" role="progressbar" 
+                             style="width: {{ (results.positive_count/results.comments_analyzed * 100) | round(1) }}%"></div>
+                    </div>
+                    <small>{{ (results.positive_count/results.comments_analyzed * 100) | round(1) }}%</small>
+                </div>
+            </div>
+            <div class="col-md-4 mb-3">
+                <div class="stat-card">
+                    <i class="bi bi-emoji-frown stat-icon text-danger"></i>
+                    <div class="stat-value text-danger">{{ results.negative_count }}</div>
+                    <div>Negative Comments</div>
+                    <div class="progress mt-3">
+                        <div class="progress-bar progress-bar-negative" role="progressbar" 
+                             style="width: {{ (results.negative_count/results.comments_analyzed * 100) | round(1) }}%"></div>
+                    </div>
+                    <small>{{ (results.negative_count/results.comments_analyzed * 100) | round(1) }}%</small>
+                </div>
+            </div>
+            <div class="col-md-4 mb-3">
+                <div class="stat-card">
+                    <i class="bi bi-emoji-neutral stat-icon text-secondary"></i>
+                    <div class="stat-value text-secondary">{{ results.neutral_count }}</div>
+                    <div>Neutral Comments</div>
+                    <div class="progress mt-3">
+                        <div class="progress-bar progress-bar-neutral" role="progressbar" 
+                             style="width: {{ (results.neutral_count/results.comments_analyzed * 100) | round(1) }}%"></div>
+                    </div>
+                    <small>{{ (results.neutral_count/results.comments_analyzed * 100) | round(1) }}%</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Section -->
+        <div class="row">
+            <div class="col-lg-6 mb-4">
+                <div class="card">
+                    <div class="card-header d-flex align-items-center">
+                        <i class="bi bi-pie-chart me-2"></i>
+                        <h2 class="h5 mb-0">Sentiment Distribution</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container">
+                            <img src="data:image/png;base64,{{ pie_chart }}" alt="Sentiment Distribution Pie Chart" class="chart-img">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-6 mb-4">
+                <div class="card">
+                    <div class="card-header d-flex align-items-center">
+                        <i class="bi bi-bar-chart me-2"></i>
+                        <h2 class="h5 mb-0">Sentiment Counts</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container">
+                            <img src="data:image/png;base64,{{ bar_chart }}" alt="Sentiment Analysis Bar Chart" class="chart-img">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Notable Comments -->
+        <div class="card mt-4">
+            <div class="card-header d-flex align-items-center">
+                <i class="bi bi-chat-quote me-2"></i>
+                <h2 class="h5 mb-0">Notable Comments</h2>
+            </div>
+            <div class="card-body">
+                <h4 class="section-title">Most Positive Comment</h4>
+                <div class="comment-box comment-positive">
+                    <div class="d-flex align-items-start">
+                        <i class="bi bi-emoji-smile text-success me-3" style="font-size: 1.5rem;"></i>
+                        <div class="flex-grow-1">
+                            <p class="mb-2">{{ results.most_positive_comment }}</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="badge bg-success">Positive</span>
+                                <small class="text-muted">Sentiment score: {{ "%.2f"|format(results.most_positive_score) }}</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <h4 class="section-title mt-4">Most Negative Comment</h4>
+                <div class="comment-box comment-negative">
+                    <div class="d-flex align-items-start">
+                        <i class="bi bi-emoji-frown text-danger me-3" style="font-size: 1.5rem;"></i>
+                        <div class="flex-grow-1">
+                            <p class="mb-2">{{ results.most_negative_comment }}</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="badge bg-danger">Negative</span>
+                                <small class="text-muted">Sentiment score: {{ "%.2f"|format(results.most_negative_score) }}</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6 mb-4 mb-md-0">
+                    <h5>YouTube Comment Analyzer</h5>
+                    <p class="mb-0">Gain valuable insights from your YouTube audience through advanced comment analysis.</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <p class="mb-0">© 2023 YouTube Comment Analyzer. All rights reserved.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

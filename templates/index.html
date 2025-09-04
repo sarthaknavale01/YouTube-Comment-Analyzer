@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YouTube Comment Analyzer</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --youtube-red: #FF0000;
+            --youtube-dark: #0F0F0F;
+            --youtube-light-dark: #272727;
+            --youtube-gray: #F1F1F1;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            font-family: 'Roboto', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .navbar {
+            background-color: var(--youtube-dark);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+        
+        .youtube-logo {
+            height: 30px;
+        }
+        
+        .hero-section {
+            background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), 
+                        url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="%230F0F0F"/><path d="M30,30 L70,50 L30,70 Z" fill="%23FF0000"/></svg>');
+            background-size: cover;
+            background-position: center;
+            color: white;
+            padding: 5rem 0;
+            margin-bottom: 3rem;
+            text-align: center;
+        }
+        
+        .main-container {
+            max-width: 900px;
+            flex: 1;
+        }
+        
+        .card {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            margin-bottom: 2rem;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.12);
+        }
+        
+        .card-header {
+            background: linear-gradient(135deg, var(--youtube-red) 0%, #CC0000 100%);
+            color: white;
+            font-weight: 600;
+            padding: 1.2rem 1.5rem;
+            border-bottom: none;
+        }
+        
+        .card-body {
+            padding: 2rem;
+        }
+        
+        .form-control, .form-control:focus {
+            border-radius: 8px;
+            padding: 0.8rem 1.2rem;
+            border: 2px solid #e9ecef;
+            transition: all 0.3s;
+        }
+        
+        .form-control:focus {
+            border-color: var(--youtube-red);
+            box-shadow: 0 0 0 0.25rem rgba(255, 0, 0, 0.15);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--youtube-red) 0%, #CC0000 100%);
+            border: none;
+            border-radius: 8px;
+            padding: 0.8rem 2rem;
+            font-weight: 600;
+            transition: all 0.3s;
+            box-shadow: 0 4px 8px rgba(255, 0, 0, 0.2);
+        }
+        
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #CC0000 0%, #AA0000 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(255, 0, 0, 0.25);
+        }
+        
+        .feature-icon {
+            font-size: 2.5rem;
+            color: var(--youtube-red);
+            margin-bottom: 1rem;
+        }
+        
+        .feature-card {
+            text-align: center;
+            padding: 1.5rem;
+            height: 100%;
+        }
+        
+        .footer {
+            background-color: var(--youtube-dark);
+            color: white;
+            padding: 2rem 0;
+            margin-top: auto;
+        }
+        
+        .step-number {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 35px;
+            height: 35px;
+            background-color: var(--youtube-red);
+            color: white;
+            border-radius: 50%;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        
+        .alert-danger {
+            border-radius: 8px;
+            border-left: 4px solid #dc3545;
+        }
+        
+        .analyze-loader {
+            display: none;
+            width: 2rem;
+            height: 2rem;
+            border-width: 0.2em;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center" href="#">
+                <i class="bi bi-youtube me-2" style="color: var(--youtube-red); font-size: 1.8rem;"></i>
+                <span class="fw-bold">Comment Analyzer</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#"><i class="bi bi-house-door me-1"></i> Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#"><i class="bi bi-info-circle me-1"></i> About</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#"><i class="bi bi-envelope me-1"></i> Contact</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <div class="hero-section">
+        <div class="container">
+            <h1 class="display-4 fw-bold mb-3">YouTube Comment Analyzer</h1>
+            <p class="lead mb-4">Gain insights into viewer sentiment and engagement through AI-powered comment analysis</p>
+            <a href="#analyzer-card" class="btn btn-lg btn-primary px-4 py-2">
+                <i class="bi bi-play-circle me-2"></i>Get Started
+            </a>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container main-container">
+        <!-- How it works section -->
+        <div class="row mb-5">
+            <div class="col-md-4 mb-4">
+                <div class="card feature-card">
+                    <i class="bi bi-link-45deg feature-icon"></i>
+                    <h4>Paste URL</h4>
+                    <p class="text-muted">Simply paste the YouTube video URL you want to analyze</p>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card feature-card">
+                    <i class="bi bi-cloud-download feature-icon"></i>
+                    <h4>Extract Comments</h4>
+                    <p class="text-muted">Our system will fetch and process all comments from the video</p>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card feature-card">
+                    <i class="bi bi-graph-up feature-icon"></i>
+                    <h4>Analyze Sentiment</h4>
+                    <p class="text-muted">Get detailed sentiment analysis and viewer engagement metrics</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Analyzer Card -->
+        <div class="card" id="analyzer-card">
+            <div class="card-header">
+                <h2 class="mb-0"><i class="bi bi-search me-2"></i>Analyze Video Comments</h2>
+            </div>
+            <div class="card-body">
+                {% if error %}
+                <div class="alert alert-danger d-flex align-items-center" role="alert">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                    <div>{{ error }}</div>
+                </div>
+                {% endif %}
+                
+                <form action="/analyze" method="post" id="analyze-form">
+                    <div class="mb-4">
+                        <label for="video_url" class="form-label fw-semibold">
+                            <span class="step-number">1</span>Enter YouTube Video URL
+                        </label>
+                        <input type="text" class="form-control form-control-lg" id="video_url" name="video_url" 
+                               placeholder="https://www.youtube.com/watch?v=..." required>
+                    </div>
+                    
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <span class="analyze-loader spinner-border spinner-border-sm me-2" role="status"></span>
+                            <i class="bi bi-lightning-charge-fill me-2"></i>Analyze Comments
+                        </button>
+                    </div>
+                </form>
+            </div>
+            <div class="card-footer text-muted bg-light">
+                <i class="bi bi-info-circle me-1"></i>This tool analyzes the sentiment of YouTube comments to help you understand viewer reactions.
+            </div>
+        </div>
+        
+        <!-- Info Section -->
+        <div class="card">
+            <div class="card-header">
+                <h2 class="mb-0"><i class="bi bi-question-circle me-2"></i>How It Works</h2>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h4>Comment Analysis</h4>
+                        <p>Our advanced algorithm processes YouTube comments to determine:</p>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item border-0 ps-0"><i class="bi bi-check-circle-fill text-success me-2"></i>Overall sentiment (Positive, Negative, Neutral)</li>
+                            <li class="list-group-item border-0 ps-0"><i class="bi bi-check-circle-fill text-success me-2"></i>Key themes and topics discussed</li>
+                            <li class="list-group-item border-0 ps-0"><i class="bi bi-check-circle-fill text-success me-2"></i>Engagement levels and patterns</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h4>Benefits</h4>
+                        <p>Understanding comment sentiment helps content creators:</p>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item border-0 ps-0"><i class="bi bi-arrow-up-right-circle-fill text-primary me-2"></i>Improve content strategy</li>
+                            <li class="list-group-item border-0 ps-0"><i class="bi bi-arrow-up-right-circle-fill text-primary me-2"></i>Understand audience preferences</li>
+                            <li class="list-group-item border-0 ps-0"><i class="bi bi-arrow-up-right-circle-fill text-primary me-2"></i>Identify areas for improvement</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6 mb-4 mb-md-0">
+                    <h5>YouTube Comment Analyzer</h5>
+                    <p class="mb-0">Gain valuable insights from your YouTube audience through advanced comment analysis.</p>
+                </div>
+                <div class="col-md-3 mb-4 mb-md-0">
+                    <h5>Links</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="#" class="text-white text-decoration-none">Home</a></li>
+                        <li><a href="#" class="text-white text-decoration-none">About</a></li>
+                        <li><a href="#" class="text-white text-decoration-none">Privacy Policy</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-3">
+                    <h5>Contact</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="#" class="text-white text-decoration-none"><i class="bi bi-envelope me-2"></i>Support</a></li>
+                        <li><a href="#" class="text-white text-decoration-none"><i class="bi bi-twitter me-2"></i>Twitter</a></li>
+                        <li><a href="#" class="text-white text-decoration-none"><i class="bi bi-github me-2"></i>GitHub</a></li>
+                    </ul>
+                </div>
+            </div>
+            <hr class="my-4 bg-light">
+            <p class="mb-0 text-center">© 2023 YouTube Comment Analyzer. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.getElementById('analyze-form').addEventListener('submit', function() {
+            const button = this.querySelector('button[type="submit"]');
+            const loader = button.querySelector('.analyze-loader');
+            const icon = button.querySelector('.bi-lightning-charge-fill');
+            
+            // Show loader, hide icon
+            loader.style.display = 'inline-block';
+            icon.style.display = 'none';
+            
+            // Disable button to prevent multiple submissions
+            button.disabled = true;
+        });
+    </script>
+</body>
+</html>
