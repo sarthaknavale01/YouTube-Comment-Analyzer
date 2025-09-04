@@ -6,3 +6,4 @@ vaderSentiment
 emoji
 matplotlib
 numpy
+--upgrade Flask Werkzeug
